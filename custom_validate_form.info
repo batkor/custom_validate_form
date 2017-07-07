@@ -1,0 +1,4 @@
+name = Custom validate form
+description = Custom module validate form
+package = custom
+core = 7.x

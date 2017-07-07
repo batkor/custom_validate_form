@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_validate_form_menu() {
+  $items['admin/config/system/validate_form'] = array(
+    'title'            => 'Validate forms',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('custom_validate_form_setting'),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'custom_validate.form.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function custom_validate_form_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == variable_get('custom_validate_form_setting', '')) {
+    $form['#validate'][] = 'custom_validate_form_spam';
+  }
+}
+
+function custom_validate_form_spam($form, &$form_state) {
+  $results = custom_validate_form_get_field_name_recursive($form, '', array(
+    'textfield',
+    'textarea',
+  ));
+  array_walk_recursive($results, function ($value) use (&$names) {
+    $names[] = $value;
+  });
+  $names = array_unique($names); //form_set_error($field_name, 'url field');
+
+  $is_link = custom_validate_form_check_fields($form_state['values'], $names);
+
+  if ($is_link) {
+    form_set_error('values][', 'url field');
+  }
+
+}
+
+function custom_validate_form_get_field_name_recursive($form, $key = '', $type = array()) {
+  $names = array();
+  if (is_array($form)) {
+    foreach ($form as $form_key => $form_item) {
+      if (is_array($form_item)) {
+        $names_recursive = custom_validate_form_get_field_name_recursive($form_item, $form_key, $type);
+        if ($names_recursive) {
+          $names[] = $names_recursive;
+        }
+      }
+      else {
+        if (is_string($form_item) && in_array($form_item, $type) && array_key_exists('#id', $form)) {
+          $names[] = $key;
+        }
+      }
+    }
+
+    return $names;
+  }
+
+  return FALSE;
+}
+
+function custom_validate_form_check_fields($fields, $names) {
+  $result = FALSE;
+  array_walk_recursive($fields, function ($value, $field_name) use (&$names, &$result) {
+    if (in_array($field_name, $names) && !empty($value)) {
+      if (custom_validate_form_is_url($value)) {
+        $result = TRUE;
+      }
+    }
+  });
+  return $result;
+}
+
+function custom_validate_form_is_url($value) {
+  $pattern = '|http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i';
+  $is_link = preg_match($pattern, $value);
+  if ($is_link) {
+    return $is_link;
+  }
+  else {
+    $pattern = '|www?\.[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i';
+    $is_link = preg_match($pattern, $value);
+    if ($is_link) {
+      return $is_link;
+    }
+  }
+
+  return FALSE;
+}
