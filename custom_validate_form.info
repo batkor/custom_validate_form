@@ -1,4 +1,7 @@
 name = Custom validate form
 description = Custom module validate form
 package = custom
+
+configure = admin/config/system/validate_form
+
 core = 7.x
