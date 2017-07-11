@@ -30,7 +30,7 @@ function custom_validate_form_setting($form, &$form_state) {
     '#theme'  => 'table',
     '#header' => $header,
     '#rows'   => $options,
-    '#empty'  => t('emty'),
+    '#empty'  => t('No forms have been selected'),
   );
 
   return $form;
