@@ -19,7 +19,8 @@ function custom_validate_form_menu() {
  * Implements hook_form_alter().
  */
 function custom_validate_form_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == variable_get('custom_validate_form_setting', '')) {
+  $form_setting = variable_get('custom_validate_form_setting', array());
+  if (in_array($form_id, $form_setting)) {
     $form['#validate'][] = 'custom_validate_form_spam';
   }
 }
@@ -37,7 +38,8 @@ function custom_validate_form_spam($form, &$form_state) {
   $is_link = custom_validate_form_check_fields($form_state['values'], $names);
 
   if ($is_link) {
-    form_set_error('values][', 'url field');
+    form_set_error('values', 'url field');
+    return;
   }
 
 }
