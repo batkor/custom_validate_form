@@ -14,6 +14,24 @@ function custom_validate_form_setting($form, &$form_state) {
     '#submit' => array('custom_validate_add_form_setting'),
   );
 
+  //  lang setting
+  $form['lang_conteiner']= array(
+    '#type' => 'fieldset',
+    '#title' => t('Language settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Enter the text of the error, depending on the language')
+  );
+
+  $langs = locale_language_list('name');
+
+  foreach ($langs as $key => $lang) {
+    $form['lang_conteiner'][$key]= array(
+      '#type' => 'textfield',
+      '#title' => $lang,
+    );
+  }
+
   $header = array(
     'id_use_form' => t('ID used forms'),
   );
