@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @see custom_validate_form_menu()
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
+ */
 function custom_validate_form_setting($form, &$form_state) {
 
   $form['new_form_id'] = array(
@@ -24,8 +31,9 @@ function custom_validate_form_setting($form, &$form_state) {
     '#description' => t('Enter the text of the error, depending on the language'),
   );
 
-
+  //get enable language
   $get_enable_langs = locale_language_list('name');
+  //get saving setting language
   $save_lang_setting = variable_get('custom_validate_language_setting', array('en' => 'Error'));
   foreach ($get_enable_langs as $key => $lang) {
     $form['lang_conteiner'][$key] = array(
@@ -70,23 +78,43 @@ function custom_validate_form_setting($form, &$form_state) {
   return $form;
 }
 
+/**
+ * @see \custom_validate_add_form_setting()
+ * @param $form
+ * @param $form_state
+ */
 function custom_validate_add_form_setting($form, &$form_state) {
   $old_form_setting = variable_get('custom_validate_form_setting', array());
   $old_form_setting[] = $form_state['values']['new_form_id'];
   variable_set('custom_validate_form_setting', $old_form_setting);
 }
 
+/**
+ * @see \custom_validate_add_form_setting()
+ * @param $form
+ * @param $form_state
+ */
 function custom_validate_remove_all_setting($form, &$form_state) {
   variable_del('custom_validate_form_setting');
   variable_del('custom_validate_language_setting');
 }
 
+/**
+ * @see \custom_validate_add_form_setting()
+ * @param $form
+ * @param $form_state
+ */
 function custom_validate_save_lang_setting($form, &$form_state) {
   $lang_new_set = $form_state['values']['lang_conteiner'];
   unset($lang_new_set['save_lang_setting']);
   variable_set('custom_validate_language_setting', $lang_new_set);
 }
 
+/**
+ * @see \custom_validate_add_form_setting()
+ * @param $form
+ * @param $form_state
+ */
 function custom_validate_save_lang_setting_validate($form, &$form_state) {
   $lang_new_set = $form_state['values']['lang_conteiner'];
   unset($lang_new_set['save_lang_setting']);
