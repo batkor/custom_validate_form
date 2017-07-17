@@ -38,7 +38,11 @@ function custom_validate_form_spam($form, &$form_state) {
   $is_link = custom_validate_form_check_fields($form_state['values'], $names);
 
   if ($is_link) {
-    form_set_error('values', 'url field');
+    $save_lang_setting = variable_get('custom_validate_language_setting', array('en' => 'Error'));
+
+    global $language;
+    $lang_name = $language->language;
+    form_set_error('values', $save_lang_setting[$lang_name]);
     return;
   }
 
