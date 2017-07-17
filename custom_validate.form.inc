@@ -33,11 +33,21 @@ function custom_validate_form_setting($form, &$form_state) {
     '#empty'  => t('No forms have been selected'),
   );
 
+  $form['remove_form_setting'] = array(
+    '#type'   => 'submit',
+    '#value'  => t('Remove all setting'),
+    '#submit' => array('custom_validate_remove_all_setting'),
+  );
+
   return $form;
 }
 
 function custom_validate_add_form_setting($form, &$form_state) {
   $old_form_setting = variable_get('custom_validate_form_setting', array());
-  $old_form_setting['id_use_form'] = $form_state['values']['new_form_id'];
+  $old_form_setting[] = $form_state['values']['new_form_id'];
   variable_set('custom_validate_form_setting', $old_form_setting);
+}
+
+function custom_validate_remove_all_setting($form, &$form_state){
+  variable_del('custom_validate_form_setting');
 }
