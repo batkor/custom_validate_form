@@ -51,7 +51,6 @@ function custom_validate_form_spam($form, &$form_state) {
     form_set_error('values', $save_lang_setting[$lang_name]);
     return;
   }
-
 }
 
 /**
