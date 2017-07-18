@@ -11,7 +11,12 @@ function custom_validate_form_menu() {
     'access arguments' => array('administer site configuration'),
     'file'             => 'custom_validate.form.inc',
   );
-
+  $items['admin/config/system/validate_form/remove_text_checked/%'] = array(
+    'title'            => 'Delete validate',
+    'page callback'    => 'custom_validate_remove_text_checked',
+    'page arguments'   => array(5),
+    'access arguments' => array('administer site configuration'),
+  );
   return $items;
 }
 
@@ -27,7 +32,9 @@ function custom_validate_form_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * custom function for validate form
+ *
  * @see \custom_validate_form_form_alter()
+ *
  * @param $form
  * @param $form_state
  */
@@ -55,7 +62,9 @@ function custom_validate_form_spam($form, &$form_state) {
 
 /**
  * get element form
+ *
  * @see \custom_validate_form_form_alter()
+ *
  * @param $form - form
  * @param string $key - key children element
  * @param array $type - type element
@@ -88,7 +97,9 @@ function custom_validate_form_get_field_name_recursive($form, $key = '', $type =
 
 /**
  *  function check element form
+ *
  * @see custom_validate_form_spam()
+ *
  * @param $fields
  * @param $names
  *
@@ -108,24 +119,35 @@ function custom_validate_form_check_fields($fields, $names) {
 
 /**
  * function check value element to url
+ *
  * @see \custom_validate_form_check_fields()
+ *
  * @param $value
  *
  * @return bool|int
  */
 function custom_validate_form_is_url($value) {
-  $pattern = '|http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i';
-  $is_link = preg_match($pattern, $value);
-  if ($is_link) {
-    return $is_link;
-  }
-  else {
-    $pattern = '|www?\.[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i';
-    $is_link = preg_match($pattern, $value);
-    if ($is_link) {
-      return $is_link;
+  $items_checked = variable_get('custom_validate_text_checked', array());
+  if (!empty($items_checked)) {
+    foreach ($items_checked as $pattern) {
+      $is_link = preg_match($pattern, $value);
+      if ($is_link) {
+        return $is_link;
+      }
     }
   }
 
   return FALSE;
+}
+
+function custom_validate_remove_text_checked($item) {
+  $old_text_checked = variable_get('custom_validate_text_checked', array());
+  if (!empty($old_text_checked) && $item !== '') {
+    unset($old_text_checked[$item]);
+    variable_set('custom_validate_text_checked', $old_text_checked);
+  }
+  else {
+    drupal_set_message('Error remove item validate', 'error');
+  }
+  drupal_goto('admin/config/system/validate_form');
 }

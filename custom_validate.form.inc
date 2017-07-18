@@ -2,6 +2,7 @@
 
 /**
  * @see custom_validate_form_menu()
+ *
  * @param $form
  * @param $form_state
  *
@@ -50,15 +51,59 @@ function custom_validate_form_setting($form, &$form_state) {
     '#validate' => array('custom_validate_save_lang_setting_validate'),
   );
 
+  //text checked
+  $form['text_checked'] = array(
+    '#type'        => 'fieldset',
+    '#tree'        => TRUE,
+    '#title'       => t('Regular expressions for validation'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => TRUE,
+    '#description' => t('Setting regular expressions for validate'),
+  );
+
+  $form['text_checked']['text_checked'] = array(
+    '#type'        => 'textfield',
+    '#title'       => t('Enter regular expressions for validate'),
+    '#description' => t('Supports regular expressions'),
+  );
+
+  $form['text_checked']['add_text_checked'] = array(
+    '#type'   => 'submit',
+    '#value'  => t('Add validate'),
+    '#submit' => array('custom_validate_add_text_checked'),
+  );
+
   $header = array(
-    'id_use_form' => t('ID used forms'),
+    'item_validate' => t('Items validate'),
+    'action' => t('Action'),
   );
   $options = array();
-  $form_setting = variable_get('custom_validate_form_setting', array());
+  $text_checked = variable_get('custom_validate_text_checked', array());
 
+  foreach ($text_checked as $key => $item) {
+    $options[] = array(
+      'item_validate' => $item,
+      'action' => t('<a href="@link">Remove</a>', array('@link' => 'validate_form/remove_text_checked/'.$key)),
+    );
+  }
+
+  $form['text_checked']['table_selected_validate'] = array(
+    '#theme'  => 'table',
+    '#header' => $header,
+    '#rows'   => $options,
+    '#empty'  => t('Not text/word for validate'),
+  );
+
+  //form id list
+  $header = array(
+    'id_use_form' => t('ID used forms')
+  );
+
+  $form_setting = variable_get('custom_validate_form_setting', array());
+  $options = array();
   foreach ($form_setting as $item) {
     $options[] = array(
-      'id_use_form' => $item,
+      'id_use_form' => $item
     );
   }
 
@@ -80,6 +125,7 @@ function custom_validate_form_setting($form, &$form_state) {
 
 /**
  * @see \custom_validate_add_form_setting()
+ *
  * @param $form
  * @param $form_state
  */
@@ -91,16 +137,19 @@ function custom_validate_add_form_setting($form, &$form_state) {
 
 /**
  * @see \custom_validate_add_form_setting()
+ *
  * @param $form
  * @param $form_state
  */
 function custom_validate_remove_all_setting($form, &$form_state) {
   variable_del('custom_validate_form_setting');
   variable_del('custom_validate_language_setting');
+  variable_del('custom_validate_text_checked');
 }
 
 /**
  * @see \custom_validate_add_form_setting()
+ *
  * @param $form
  * @param $form_state
  */
@@ -112,6 +161,7 @@ function custom_validate_save_lang_setting($form, &$form_state) {
 
 /**
  * @see \custom_validate_add_form_setting()
+ *
  * @param $form
  * @param $form_state
  */
@@ -123,4 +173,15 @@ function custom_validate_save_lang_setting_validate($form, &$form_state) {
       form_set_error('lang_conteiner][' . $key, t('Please enter the error text for @lang', array('@lang' => $key)));
     }
   }
+}
+
+/**
+ * @see \custom_validate_form_setting()
+ * @param $form
+ * @param $form_state
+ */
+function custom_validate_add_text_checked($form, &$form_state){
+  $old_text_checked = variable_get('custom_validate_text_checked', array());
+  $old_text_checked[] = $form_state['values']['text_checked']['text_checked'];
+  variable_set('custom_validate_text_checked', $old_text_checked);
 }
