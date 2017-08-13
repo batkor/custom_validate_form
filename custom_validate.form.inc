@@ -11,65 +11,65 @@
 function custom_validate_form_setting($form, &$form_state) {
 
   $form['new_form_id'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('Form ID'),
+    '#type' => 'textfield',
+    '#title' => t('Form ID'),
     '#default_value' => '',
   );
 
   $form['add_form_setting'] = array(
-    '#type'   => 'submit',
-    '#value'  => t('Add form'),
+    '#type' => 'submit',
+    '#value' => t('Add form'),
     '#submit' => array('custom_validate_add_form_setting'),
   );
 
   //  lang setting
   $form['lang_conteiner'] = array(
-    '#type'        => 'fieldset',
-    '#tree'        => TRUE,
-    '#title'       => t('Language settings'),
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+    '#title' => t('Language settings'),
     '#collapsible' => TRUE,
-    '#collapsed'   => TRUE,
+    '#collapsed' => TRUE,
     '#description' => t('Enter the text of the error, depending on the language'),
   );
 
   //get enable language
   $get_enable_langs = locale_language_list('name');
   //get saving setting language
-  $save_lang_setting = variable_get('custom_validate_language_setting', array('en' => 'Error'));
+  $save_lang_setting = variable_get('custom_validate_language_setting', array());
   foreach ($get_enable_langs as $key => $lang) {
     $form['lang_conteiner'][$key] = array(
-      '#type'          => 'textfield',
-      '#title'         => $lang,
-      '#default_value' => $save_lang_setting[$key],
+      '#type' => 'textfield',
+      '#title' => $lang,
+      '#default_value' => empty($save_lang_setting) ? '' : $save_lang_setting[$key],
     );
   }
 
   $form['lang_conteiner']['save_lang_setting'] = array(
-    '#type'     => 'submit',
-    '#value'    => t('Save language setting'),
-    '#submit'   => array('custom_validate_save_lang_setting'),
+    '#type' => 'submit',
+    '#value' => t('Save language setting'),
+    '#submit' => array('custom_validate_save_lang_setting'),
     '#validate' => array('custom_validate_save_lang_setting_validate'),
   );
 
   //text checked
   $form['text_checked'] = array(
-    '#type'        => 'fieldset',
-    '#tree'        => TRUE,
-    '#title'       => t('Regular expressions for validation'),
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+    '#title' => t('Regular expressions for validation'),
     '#collapsible' => TRUE,
-    '#collapsed'   => TRUE,
+    '#collapsed' => TRUE,
     '#description' => t('Setting regular expressions for validate'),
   );
 
   $form['text_checked']['text_checked'] = array(
-    '#type'        => 'textfield',
-    '#title'       => t('Enter regular expressions for validate'),
+    '#type' => 'textfield',
+    '#title' => t('Enter regular expressions for validate'),
     '#description' => t('Supports regular expressions'),
   );
 
   $form['text_checked']['add_text_checked'] = array(
-    '#type'   => 'submit',
-    '#value'  => t('Add validate'),
+    '#type' => 'submit',
+    '#value' => t('Add validate'),
     '#submit' => array('custom_validate_add_text_checked'),
   );
 
@@ -83,40 +83,40 @@ function custom_validate_form_setting($form, &$form_state) {
   foreach ($text_checked as $key => $item) {
     $options[] = array(
       'item_validate' => $item,
-      'action' => t('<a href="@link">Remove</a>', array('@link' => 'validate_form/remove_text_checked/'.$key)),
+      'action' => t('<a href="@link">Remove</a>', array('@link' => 'validate_form/remove_text_checked/' . $key)),
     );
   }
 
   $form['text_checked']['table_selected_validate'] = array(
-    '#theme'  => 'table',
+    '#theme' => 'table',
     '#header' => $header,
-    '#rows'   => $options,
-    '#empty'  => t('Not text/word for validate'),
+    '#rows' => $options,
+    '#empty' => t('Not text/word for validate'),
   );
 
   //form id list
   $header = array(
-    'id_use_form' => t('ID used forms')
+    'id_use_form' => t('ID used forms'),
   );
 
   $form_setting = variable_get('custom_validate_form_setting', array());
   $options = array();
   foreach ($form_setting as $item) {
     $options[] = array(
-      'id_use_form' => $item
+      'id_use_form' => $item,
     );
   }
 
   $form['table_selected_ballon'] = array(
-    '#theme'  => 'table',
+    '#theme' => 'table',
     '#header' => $header,
-    '#rows'   => $options,
-    '#empty'  => t('No forms have been selected'),
+    '#rows' => $options,
+    '#empty' => t('No forms have been selected'),
   );
 
   $form['remove_form_setting'] = array(
-    '#type'   => 'submit',
-    '#value'  => t('Remove all setting'),
+    '#type' => 'submit',
+    '#value' => t('Remove all setting'),
     '#submit' => array('custom_validate_remove_all_setting'),
   );
 
@@ -177,10 +177,11 @@ function custom_validate_save_lang_setting_validate($form, &$form_state) {
 
 /**
  * @see \custom_validate_form_setting()
+ *
  * @param $form
  * @param $form_state
  */
-function custom_validate_add_text_checked($form, &$form_state){
+function custom_validate_add_text_checked($form, &$form_state) {
   $old_text_checked = variable_get('custom_validate_text_checked', array());
   $old_text_checked[] = $form_state['values']['text_checked']['text_checked'];
   variable_set('custom_validate_text_checked', $old_text_checked);
